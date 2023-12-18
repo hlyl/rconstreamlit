@@ -1,6 +1,8 @@
 import streamlit as st
 import configparser
 from rcon.source import Client
+import json
+import re
 
 
 # Your existing functions
@@ -21,25 +23,40 @@ def run_rcon_command(command, *args):
 # Streamlit app
 def main():
     st.title("Counterstrike2")
+    response = run_rcon_command("status")
+    # Regular expression pattern to find player names
+    pattern = r"'\w+'"
 
-    # Dropdown for map selection
-    map_name = st.selectbox(
-        "Select a map:",
-        [
-            "de_dust2",
-            "de_mirage",
-            "de_inferno",
-            "de_overpass",
-            "de_nuke",
-            "de_train",
-            "de_vertigo",
-        ],
-    )
+    # Find all matches
+    matches = re.findall(pattern, response)
 
-    # Button for execution
-    if st.button("Change Map"):
-        response = run_rcon_command("changelevel", map_name)
-        st.success(f"Response: {response}")
+    # Extract player names from matches
+    player_names = [match.strip("'") for match in matches]
+
+    print(player_names)
+    st.text(f"Players: {player_names}")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        # Dropdown for map selection
+        map_name = st.selectbox(
+            "Select a map:",
+            [
+                "de_dust2",
+                "de_mirage",
+                "de_inferno",
+                "de_overpass",
+                "de_nuke",
+                "de_train",
+                "de_vertigo",
+            ],
+        )
+
+    with col2:
+        # Button for execution
+        if st.button("Change Map"):
+            response = run_rcon_command("changelevel", map_name)
+            st.success(f"Response: {response}")
 
     col1, col2, col3 = st.columns(3)
 
